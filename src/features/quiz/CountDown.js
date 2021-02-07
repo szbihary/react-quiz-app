@@ -1,3 +1,3 @@
 export const CountDown = () => {
-  return <div>30s</div>;
+  return <span title="Remaining time">30s</span>;
 };
