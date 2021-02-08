@@ -3,13 +3,14 @@ import { useSelector, useDispatch } from "react-redux";
 import styles from "./quizForm.module.css";
 import {
   evaluateAnswer,
+  timerEnded,
   selectQuizItem,
   selectRound,
   selectTopScore,
   selectError,
   fetchQuestion,
 } from "../quizSlice";
-
+import { AVAILABLE_TIME_SEC } from "../../../config";
 import { CountDown } from "../CountDown";
 import { RoundInfo } from "../RoundInfo";
 import { Score } from "../Score";
@@ -38,6 +39,10 @@ export const QuizForm = () => {
     setUserAnswer("");
   };
 
+  const handleTimerEnd = () => {
+    dispatch(timerEnded());
+  };
+
   if (fetchStatus === "loading") {
     return <div className="loader">Loading a question...</div>;
   }
@@ -50,7 +55,7 @@ export const QuizForm = () => {
       <div className={styles.gameInfo}>
         <RoundInfo round={round} />
         <Score round={round} topScore={topScore} />
-        <CountDown />
+        <CountDown seconds={AVAILABLE_TIME_SEC} onTimerEnd={handleTimerEnd} />
       </div>
       <div className={styles.question}>
         <div>

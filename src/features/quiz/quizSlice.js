@@ -9,7 +9,7 @@ export const fetchQuestion = createAsyncThunk(
   "quiz/fetchQuestion",
   async () => {
     const questions = await fetchRandomQuestion();
-    return questions[0]; // return array with one question by default
+    return questions[0]; // API returns an array with one question by default
   }
 );
 
@@ -44,6 +44,9 @@ export const quizSlice = createSlice({
       state.gameStatus = "started";
       state.askedQuestionIds = [];
     },
+    timerEnded(state) {
+      state.gameStatus = "lose";
+    },
   },
   extraReducers: {
     [fetchQuestion.pending]: (state) => {
@@ -67,7 +70,7 @@ export const quizSlice = createSlice({
   },
 });
 
-export const { evaluateAnswer, restart } = quizSlice.actions;
+export const { evaluateAnswer, restart, timerEnded } = quizSlice.actions;
 
 export default quizSlice.reducer;
 
