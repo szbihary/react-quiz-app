@@ -1,58 +1,73 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { client } from "../../api/client";
+import { fetchRandomQuestion } from "../../api";
+import { MAX_ROUND } from "../../config";
 
-export const fetchRandomQuestion = createAsyncThunk(
-  "quiz/fetchRandomQuestion",
+const sanitizeString = (string) => string.replace(/<\/?[^>]+(>|$)/g, "");
+
+export const fetchQuestion = createAsyncThunk(
+  "quiz/fetchQuestion",
   async () => {
-    const questions = await client.get("https://jservice.io/api/random");
-    return questions;
+    const questions = await fetchRandomQuestion();
+    return questions[0]; // return array with one question by default
   }
 );
 
-const testItem = {
-  id: 58971,
-  answer: "extradition",
-  question: "The handing over of a criminal to another country or state",
-  value: 600,
-  airdate: "2004-06-08T12:00:00.000Z",
-  created_at: "2014-02-11T23:22:58.890Z",
-  updated_at: "2014-02-11T23:22:58.890Z",
-  category_id: 7547,
-  game_id: null,
-  invalid_count: null,
-  category: {
-    id: 7547,
-    title: '"extra" helpings',
-    created_at: "2014-02-11T23:22:58.425Z",
-    updated_at: "2014-02-11T23:22:58.425Z",
-    clues_count: 5,
-  },
+const initialState = {
+  round: 1,
+  quizItem: null,
+  askedQuestionIds: [],
+  gameStatus: "initial", // 'initial', 'started', 'win', 'lose'
+  fetchStatus: "loading",
 };
 
 export const quizSlice = createSlice({
   name: "quiz",
-  initialState: {
-    quizItems: [testItem],
-    round: 1,
+  initialState,
+  reducers: {
+    evaluateAnswer(state, action) {
+      const userAnswer = action.payload;
+      if (state.quizItem.answer.toLowerCase() === userAnswer.toLowerCase()) {
+        if (state.round === MAX_ROUND) {
+          state.gameStatus = "win";
+        } else {
+          state.round += 1;
+        }
+      } else {
+        state.gameStatus = "lose";
+      }
+    },
+    restart(state) {
+      state.round = 1;
+      state.gameStatus = "started";
+    },
   },
-  reducers: {},
   extraReducers: {
-    [fetchRandomQuestion.pending]: (state, action) => {
-      state.status = "loading";
+    [fetchQuestion.pending]: (state) => {
+      state.fetchStatus = "loading";
     },
-    [fetchRandomQuestion.fulfilled]: (state, action) => {
-      state.status = "succeeded";
+    [fetchQuestion.fulfilled]: (state, action) => {
+      state.fetchStatus = "success";
       const { id, question, answer, category } = action.payload;
-      state.quizItems.push({ id, question, answer, category });
+      state.askedQuestionIds.push(id);
+      state.quizItem = {
+        id,
+        question,
+        answer: sanitizeString(answer),
+        category,
+      };
     },
-    [fetchRandomQuestion.pending]: (state, action) => {
-      state.status = "failed";
+    [fetchQuestion.rejected]: (state, action) => {
+      state.fetchStatus = "error";
       state.error = action.error.message;
     },
   },
 });
 
+export const { evaluateAnswer, restart } = quizSlice.actions;
+
 export default quizSlice.reducer;
 
 // selectors
-export const selectLastQuizItem = (state) => state.quiz.quizItems[0];
+export const selectQuizItem = (state) => state.quiz.quizItem;
+export const selectRound = (state) => state.quiz.round;
+export const selectError = (state) => state.quiz.error;
