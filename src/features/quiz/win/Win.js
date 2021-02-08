@@ -11,8 +11,7 @@ export const Win = () => {
 
   return (
     <div className={styles.container}>
-      <h2>Congratulations!</h2>
-      <h3> You won the game! :)</h3>
+      <h2> You won!</h2>
       <button onClick={handleRestart}>Restart</button>
     </div>
   );

@@ -5,7 +5,7 @@ import styles from "./gameOver.module.css";
 export const GameOver = () => {
   const dispatch = useDispatch();
   const { answer } = useSelector(selectQuizItem);
-  const answerMessage = `The correct answer is: ${answer}`;
+  const answerMessage = `The correct answer was: ${answer}`;
 
   const handleRestart = () => {
     dispatch(restart());

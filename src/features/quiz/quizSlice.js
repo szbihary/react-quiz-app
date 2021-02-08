@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchRandomQuestion } from "../../api";
 import { MAX_ROUND } from "../../config";
+import { getScoreSum } from "./utils";
 
 const sanitizeString = (string) => string.replace(/<\/?[^>]+(>|$)/g, "");
 
@@ -18,6 +19,7 @@ const initialState = {
   askedQuestionIds: [],
   gameStatus: "initial", // 'initial', 'started', 'win', 'lose'
   fetchStatus: "loading",
+  topScore: 0,
 };
 
 export const quizSlice = createSlice({
@@ -30,6 +32,7 @@ export const quizSlice = createSlice({
         if (state.round === MAX_ROUND) {
           state.gameStatus = "win";
         } else {
+          state.topScore = Math.max(state.topScore, getScoreSum(state.round));
           state.round += 1;
         }
       } else {
@@ -39,6 +42,7 @@ export const quizSlice = createSlice({
     restart(state) {
       state.round = 1;
       state.gameStatus = "started";
+      state.askedQuestionIds = [];
     },
   },
   extraReducers: {
@@ -71,3 +75,4 @@ export default quizSlice.reducer;
 export const selectQuizItem = (state) => state.quiz.quizItem;
 export const selectRound = (state) => state.quiz.round;
 export const selectError = (state) => state.quiz.error;
+export const selectTopScore = (state) => state.quiz.topScore;

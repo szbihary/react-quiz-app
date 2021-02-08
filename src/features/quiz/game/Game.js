@@ -10,9 +10,6 @@ export const Game = () => {
   let content;
 
   switch (gameStatus) {
-    case "initial":
-      content = <StartPage />;
-      break;
     case "started":
       content = <QuizForm />;
       break;
@@ -23,7 +20,8 @@ export const Game = () => {
       content = <GameOver />;
       break;
     default:
-      content = "Page Not Found";
+      // initial
+      content = <StartPage />;
   }
 
   return <div className={styles.frame}>{content}</div>;

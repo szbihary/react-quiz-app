@@ -5,12 +5,14 @@ import {
   evaluateAnswer,
   selectQuizItem,
   selectRound,
+  selectTopScore,
   selectError,
   fetchQuestion,
 } from "../quizSlice";
 
 import { CountDown } from "../CountDown";
 import { RoundInfo } from "../RoundInfo";
+import { Score } from "../Score";
 
 export const QuizForm = () => {
   const [userAnswer, setUserAnswer] = useState("");
@@ -20,6 +22,7 @@ export const QuizForm = () => {
   const round = useSelector(selectRound);
   const fetchStatus = useSelector((state) => state.quiz.fetchStatus);
   const error = useSelector(selectError);
+  const topScore = useSelector(selectTopScore);
 
   useEffect(() => {
     dispatch(fetchQuestion());
@@ -46,6 +49,7 @@ export const QuizForm = () => {
     <>
       <div className={styles.gameInfo}>
         <RoundInfo round={round} />
+        <Score round={round} topScore={topScore} />
         <CountDown />
       </div>
       <div className={styles.question}>
