@@ -7,8 +7,13 @@ const sanitizeString = (string) => string.replace(/<\/?[^>]+(>|$)/g, "");
 
 export const fetchQuestion = createAsyncThunk(
   "quiz/fetchQuestion",
-  async () => {
-    const questions = await fetchRandomQuestion();
+  async (_arg, { getState }) => {
+    let questions;
+    const { askedQuestionIds } = getState().quiz;
+    // fetch random questions until a new question is returned
+    do {
+      questions = await fetchRandomQuestion();
+    } while (askedQuestionIds.includes(questions[0].id));
     return questions[0]; // API returns an array with one question by default
   }
 );
