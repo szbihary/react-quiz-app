@@ -18,7 +18,7 @@ import { AVAILABLE_TIME_SEC } from "../../../config";
 import { CountDown } from "../CountDown";
 import { RoundInfo } from "../RoundInfo";
 import { Score } from "../Score";
-import { Button, Card, Alert, Form } from "react-bootstrap";
+import { Button, Card, Alert, Form, Row, Col, Spinner } from "react-bootstrap";
 
 export const QuizForm = () => {
   const [userAnswer, setUserAnswer] = useState("");
@@ -57,21 +57,31 @@ export const QuizForm = () => {
 
   let content;
   if (fetchStatus === "loading") {
-    content = <div className="loader">Loading a question...</div>;
+    content = (
+      <div className={styles.spinnerBox}>
+        <Spinner animation="border" role="status" aria-hidden="true">
+          <span className="sr-only"></span>
+        </Spinner>
+      </div>
+    );
   } else if (fetchStatus === "error") {
-    content = <div>{error}</div>;
+    content = <Alert variant="danger">{error}</Alert>;
   } else {
     const { question, category } = quizItem;
     content = (
       <>
-        <div className="row">
-          <dt className="col-sm-2">Category</dt>
-          <dd className="col-sm-10">{category}</dd>
-        </div>
-        <div className="row">
-          <dt className="col-sm-2">Question</dt>
-          <dd className="col-sm-10">{question}</dd>
-        </div>
+        <Row>
+          <Col md="2" className={styles.label}>
+            Category
+          </Col>
+          <Col md="10">{category}</Col>
+        </Row>
+        <Row>
+          <Col md="2" className={styles.label}>
+            Question
+          </Col>
+          <Col md="10">{question}</Col>
+        </Row>
       </>
     );
   }
@@ -82,16 +92,19 @@ export const QuizForm = () => {
 
   if (gameStatus === "started") {
     answerSection = (
-      <Form>
-        <Form.Group controlId="formAnswer">
-          <Form.Label className={styles.answerLabel}>Your answer</Form.Label>
+      <Row>
+        <Col md="2" className={styles.label}>
+          Your answer
+        </Col>
+        <Col>
           <Form.Control
             type="text"
             value={userAnswer}
             onChange={handleInputChange}
+            disabled={fetchStatus !== "success"}
           />
-        </Form.Group>
-      </Form>
+        </Col>
+      </Row>
     );
     actions = (
       <Button
@@ -100,6 +113,7 @@ export const QuizForm = () => {
         aria-label="Answer the quiz"
         className={styles.submitButton}
         onClick={handleSubmit}
+        disabled={fetchStatus !== "success"}
       >
         Submit
       </Button>
@@ -113,7 +127,7 @@ export const QuizForm = () => {
     );
   } else if (gameStatus === "lose") {
     const { answer } = quizItem;
-    const answerMessage = `The correct answer was: ${answer}`;
+    const answerMessage = `The correct answer: ${answer}`;
     headerText += " - Game Over";
     answerSection = <Alert variant="danger">{answerMessage}</Alert>;
     actions = (
@@ -126,7 +140,7 @@ export const QuizForm = () => {
   return (
     <Card className={styles.card}>
       <Card.Header className={styles.header}>{headerText}</Card.Header>
-      <Card.Body>
+      <Card.Body className={styles.cardBody}>
         <div className={styles.gameInfo}>
           <RoundInfo round={round} />
           <Score round={round} topScore={topScore} />
@@ -140,7 +154,7 @@ export const QuizForm = () => {
         {content}
         {answerSection}
       </Card.Body>
-      <Card.Footer>{actions}</Card.Footer>
+      <Card.Footer className={styles.footer}>{actions}</Card.Footer>
     </Card>
   );
 };
