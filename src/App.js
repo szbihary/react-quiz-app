@@ -1,12 +1,12 @@
 import React from "react";
-import { Game } from "./features/quiz/game/Game";
+import { QuizForm } from "./features/quiz/quiz-form/QuizForm";
 import styles from "./App.module.css";
 
 function App() {
   return (
     <div className={styles.app}>
       <header className={styles.header}>Quiz game</header>
-      <Game />
+      <QuizForm />
     </div>
   );
 }

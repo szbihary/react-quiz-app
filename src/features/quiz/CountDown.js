@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
 
-export const CountDown = ({ seconds, onTimerEnd }) => {
+export const CountDown = ({ seconds, onComplete, suspend }) => {
   const [timeLeft, setTimeLeft] = useState(seconds);
 
   useEffect(() => {
     if (!timeLeft) {
-      onTimerEnd();
+      onComplete();
+      return;
+    }
+    if (suspend) {
       return;
     }
     const intervalId = setInterval(() => setTimeLeft(timeLeft - 1), 1000);
     return () => clearInterval(intervalId);
-  }, [timeLeft, onTimerEnd]);
+  }, [timeLeft, onComplete, suspend]);
 
   const timeLeftString = `Remaining time: ${timeLeft}s`;
 
-  return <div title="Remaining time">{timeLeftString}</div>;
+  return <div>{timeLeftString}</div>;
 };

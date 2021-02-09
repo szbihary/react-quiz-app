@@ -22,7 +22,7 @@ const initialState = {
   round: 1,
   quizItem: null,
   askedQuestionIds: [],
-  gameStatus: "initial", // 'initial', 'started', 'win', 'lose'
+  gameStatus: "started", // 'started', 'win', 'lose'
   fetchStatus: "loading",
   topScore: 0,
 };
@@ -34,10 +34,10 @@ export const quizSlice = createSlice({
     evaluateAnswer(state, action) {
       const userAnswer = action.payload;
       if (state.quizItem.answer.toLowerCase() === userAnswer.toLowerCase()) {
+        state.topScore = Math.max(state.topScore, getScoreSum(state.round));
         if (state.round === MAX_ROUND) {
           state.gameStatus = "win";
         } else {
-          state.topScore = Math.max(state.topScore, getScoreSum(state.round));
           state.round += 1;
         }
       } else {
@@ -65,7 +65,7 @@ export const quizSlice = createSlice({
         id,
         question,
         answer: sanitizeString(answer),
-        category,
+        category: category.title,
       };
     },
     [fetchQuestion.rejected]: (state, action) => {
@@ -84,3 +84,7 @@ export const selectQuizItem = (state) => state.quiz.quizItem;
 export const selectRound = (state) => state.quiz.round;
 export const selectError = (state) => state.quiz.error;
 export const selectTopScore = (state) => state.quiz.topScore;
+export const selectFetchStatus = (state) => state.quiz.fetchStatus;
+export const selectGameStatus = (state) => state.quiz.gameStatus;
+export const selectQuestionsCount = (state) =>
+  state.quiz.askedQuestionIds.length;

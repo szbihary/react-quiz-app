@@ -1,4 +1,12 @@
+.quiz {
+  width: 70%;
+  margin: 10px;
+  border: 1px solid gray;
+  padding: 10px;
+}
+
 .gameInfo {
+  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -11,6 +19,20 @@
   font-size: 24px;
 }
 
+.answer {
+  color: red;
+}
+
 .submitButton {
   margin-left: 8px;
+}
+
+@media only screen and (max-width: 700px) {
+  .gameInfo {
+    flex-direction: column;
+  }
+
+  .quiz {
+    width: 90%;
+  }
 }
