@@ -1,12 +1,7 @@
 .app {
-  width: 100%;
   height: 100%;
+  width: 80%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-}
-
-.header {
-  font-size: calc(10px + 2vmin);
+  align-items: center;
 }

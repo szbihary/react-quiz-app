@@ -1,8 +1,12 @@
-.quiz {
-  width: 70%;
-  margin: 10px;
-  border: 1px solid gray;
-  padding: 10px;
+.card {
+  width: 100%;
+  min-height: 40%;
+}
+
+.header {
+  font-weight: bold;
+  font-size: 24px;
+  text-align: center;
 }
 
 .gameInfo {
@@ -10,29 +14,36 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  font-size: 20px;
+  margin-bottom: 6px;
 }
 
-.question label {
-  font-size: 16px;
-}
-.question span {
-  font-size: 24px;
+.gameInfo span {
+  margin-bottom: 6px;
 }
 
 .answer {
   color: red;
 }
 
-.submitButton {
-  margin-left: 8px;
+.answerLabel {
+  font-weight: bold;
 }
 
-@media only screen and (max-width: 700px) {
+@media only screen and (max-width: 900px) {
   .gameInfo {
     flex-direction: column;
   }
-
+  .card {
+    height: 60%;
+  }
   .quiz {
     width: 90%;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .card {
+    height: 75%;
   }
 }

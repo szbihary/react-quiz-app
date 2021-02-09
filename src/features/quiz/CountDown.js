@@ -1,4 +1,15 @@
 import { useState, useEffect } from "react";
+import { Badge } from "react-bootstrap";
+
+const getColorLevel = (timeLeft) => {
+  if (timeLeft > 10) {
+    return "info";
+  }
+  if (timeLeft > 5) {
+    return "warning";
+  }
+  return "danger";
+};
 
 export const CountDown = ({ seconds, onComplete, suspend }) => {
   const [timeLeft, setTimeLeft] = useState(seconds);
@@ -15,7 +26,12 @@ export const CountDown = ({ seconds, onComplete, suspend }) => {
     return () => clearInterval(intervalId);
   }, [timeLeft, onComplete, suspend]);
 
-  const timeLeftString = `Remaining time: ${timeLeft}s`;
+  const timeLeftString = `Time left: ${timeLeft}s`;
+  const colorLevel = getColorLevel(timeLeft);
 
-  return <div>{timeLeftString}</div>;
+  return (
+    <Badge pill variant={colorLevel}>
+      {timeLeftString}
+    </Badge>
+  );
 };

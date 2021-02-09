@@ -1,4 +1,5 @@
 import React from "react";
+import { Badge } from "react-bootstrap";
 import { getScoreOfRound, getScoreSum } from "./utils";
 
 export const Score = React.memo(({ round, topScore }) => {
@@ -6,13 +7,19 @@ export const Score = React.memo(({ round, topScore }) => {
   const userScore = getScoreSum(round - 1);
 
   const roundInfoText = `Points for the current round: ${pointsOfRound}`;
-  const userScoreText = `User Score: ${userScore}`;
+  const userScoreText = `User score: ${userScore}`;
   const topScoreText = `Top score: ${topScore}`;
   return (
     <>
-      <div>{roundInfoText}</div>
-      <div>{userScoreText}</div>
-      <div>{topScoreText}</div>
+      <Badge pill variant="info">
+        {roundInfoText}
+      </Badge>
+      <Badge pill variant="info">
+        {userScoreText}
+      </Badge>
+      <Badge pill variant="info">
+        {topScoreText}
+      </Badge>
     </>
   );
 });

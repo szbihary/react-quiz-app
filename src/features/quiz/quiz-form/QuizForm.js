@@ -18,6 +18,7 @@ import { AVAILABLE_TIME_SEC } from "../../../config";
 import { CountDown } from "../CountDown";
 import { RoundInfo } from "../RoundInfo";
 import { Score } from "../Score";
+import { Button, Card, Alert, Form } from "react-bootstrap";
 
 export const QuizForm = () => {
   const [userAnswer, setUserAnswer] = useState("");
@@ -42,7 +43,6 @@ export const QuizForm = () => {
   };
 
   const handleSubmit = (event) => {
-    event.preventDefault();
     dispatch(evaluateAnswer(userAnswer));
     setUserAnswer("");
   };
@@ -64,73 +64,83 @@ export const QuizForm = () => {
     const { question, category } = quizItem;
     content = (
       <>
-        <div className={styles.question}>
-          <div>
-            <label>Category: </label>
-            <span>{category}</span>
-          </div>
-          <div>
-            <label>Question: </label>
-            <span>{question}</span>
-          </div>
+        <div className="row">
+          <dt className="col-sm-2">Category</dt>
+          <dd className="col-sm-10">{category}</dd>
         </div>
-        <form onSubmit={handleSubmit}>
-          <label>Your answer: </label>
-          <input
-            id="answer"
+        <div className="row">
+          <dt className="col-sm-2">Question</dt>
+          <dd className="col-sm-10">{question}</dd>
+        </div>
+      </>
+    );
+  }
+
+  let answerSection;
+  let actions;
+  let headerText = "Quiz";
+
+  if (gameStatus === "started") {
+    answerSection = (
+      <Form>
+        <Form.Group controlId="formAnswer">
+          <Form.Label className={styles.answerLabel}>Your answer</Form.Label>
+          <Form.Control
             type="text"
             value={userAnswer}
             onChange={handleInputChange}
           />
-          <button
-            type="submit"
-            aria-label="Answer the quiz"
-            className={styles.submitButton}
-          >
-            Submit
-          </button>
-        </form>
-      </>
+        </Form.Group>
+      </Form>
     );
-  }
-
-  let result;
-
-  if (gameStatus === "win") {
-    result = (
-      <>
-        <h2> You Won!</h2>
-        <button onClick={handleRestart}>Restart</button>
-      </>
+    actions = (
+      <Button
+        variant="primary"
+        type="submit"
+        aria-label="Answer the quiz"
+        className={styles.submitButton}
+        onClick={handleSubmit}
+      >
+        Submit
+      </Button>
+    );
+  } else if (gameStatus === "win") {
+    headerText += " - You won!";
+    actions = (
+      <Button variant="primary" type="submit" onClick={handleRestart}>
+        Restart
+      </Button>
     );
   } else if (gameStatus === "lose") {
     const { answer } = quizItem;
     const answerMessage = `The correct answer was: ${answer}`;
-    result = (
-      <>
-        <div className={styles.answer}>{answerMessage}</div>
-        <div className={styles.result}>
-          <h3>Game Over!</h3>
-          <button onClick={handleRestart}>Restart</button>
-        </div>
-      </>
+    headerText += " - Game Over";
+    answerSection = <Alert variant="danger">{answerMessage}</Alert>;
+    actions = (
+      <Button variant="primary" type="submit" onClick={handleRestart}>
+        Restart
+      </Button>
     );
   }
 
   return (
-    <div class={styles.quiz}>
-      <div className={styles.gameInfo}>
-        <RoundInfo round={round} />
-        <Score round={round} topScore={topScore} />
-        <CountDown
-          key={questionsCount}
-          seconds={AVAILABLE_TIME_SEC}
-          onComplete={handleTimerEnd}
-          suspend={gameStatus !== "started"}
-        />
-      </div>
-      {content}
-      {result}
-    </div>
+    <Card className={styles.card}>
+      <Card.Header className={styles.header}>{headerText}</Card.Header>
+      <Card.Body>
+        <div className={styles.gameInfo}>
+          <RoundInfo round={round} />
+          <Score round={round} topScore={topScore} />
+          <CountDown
+            key={questionsCount}
+            seconds={AVAILABLE_TIME_SEC}
+            onComplete={handleTimerEnd}
+            suspend={gameStatus !== "started"}
+          />
+        </div>
+        {content}
+        {answerSection}
+      </Card.Body>
+      <Card.Footer>{actions}</Card.Footer>
+    </Card>
   );
 };
