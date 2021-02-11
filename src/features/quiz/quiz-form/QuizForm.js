@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "./quizForm.module.css";
 import {
@@ -23,6 +23,7 @@ import { Button, Card, Alert, Form, Row, Col, Spinner } from "react-bootstrap";
 export const QuizForm = () => {
   const [userAnswer, setUserAnswer] = useState("");
   const dispatch = useDispatch();
+  const answerInput = useRef(null);
 
   const quizItem = useSelector(selectQuizItem);
   const round = useSelector(selectRound);
@@ -38,11 +39,17 @@ export const QuizForm = () => {
     }
   }, [dispatch, round, gameStatus]);
 
+  useEffect(() => {
+    if (gameStatus === "started" && fetchStatus === "success") {
+      answerInput.current.focus();
+    }
+  }, [gameStatus, fetchStatus]);
+
   const handleInputChange = (event) => {
     setUserAnswer(event.target.value);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = () => {
     dispatch(evaluateAnswer(userAnswer));
     setUserAnswer("");
   };
@@ -53,6 +60,12 @@ export const QuizForm = () => {
 
   const handleRestart = () => {
     dispatch(restart());
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.which === 13) {
+      handleSubmit();
+    }
   };
 
   let content;
@@ -66,24 +79,6 @@ export const QuizForm = () => {
     );
   } else if (fetchStatus === "error") {
     content = <Alert variant="danger">{error}</Alert>;
-  } else {
-    const { question, category } = quizItem;
-    content = (
-      <>
-        <Row>
-          <Col md="2" className={styles.label}>
-            Category
-          </Col>
-          <Col md="10">{category}</Col>
-        </Row>
-        <Row>
-          <Col md="2" className={styles.label}>
-            Question
-          </Col>
-          <Col md="10">{question}</Col>
-        </Row>
-      </>
-    );
   }
 
   let answerSection;
@@ -91,51 +86,38 @@ export const QuizForm = () => {
   let headerText = "Quiz";
 
   if (gameStatus === "started") {
-    answerSection = (
-      <Row>
-        <Col md="2" className={styles.label}>
-          Your answer
-        </Col>
-        <Col>
-          <Form.Control
-            type="text"
-            value={userAnswer}
-            onChange={handleInputChange}
-            disabled={fetchStatus !== "success"}
-          />
-        </Col>
-      </Row>
-    );
     actions = (
       <Button
         variant="primary"
         type="submit"
         aria-label="Answer the quiz"
-        className={styles.submitButton}
         onClick={handleSubmit}
         disabled={fetchStatus !== "success"}
       >
         Submit
       </Button>
     );
-  } else if (gameStatus === "win") {
-    headerText += " - You won!";
-    actions = (
-      <Button variant="primary" type="submit" onClick={handleRestart}>
-        Restart
-      </Button>
-    );
-  } else if (gameStatus === "lose") {
-    const { answer } = quizItem;
-    const answerMessage = `The correct answer: ${answer}`;
-    headerText += " - Game Over";
-    answerSection = <Alert variant="danger">{answerMessage}</Alert>;
+  } else {
     actions = (
       <Button variant="primary" type="submit" onClick={handleRestart}>
         Restart
       </Button>
     );
   }
+
+  if (gameStatus === "win") {
+    headerText += " - You won!";
+  } else if (gameStatus === "lose") {
+    const { answer } = quizItem;
+    const answerMessage = `The correct answer: ${answer}`;
+    headerText += " - Game Over";
+    answerSection = <Alert variant="danger">{answerMessage}</Alert>;
+  }
+
+  const question =
+    fetchStatus !== "loading" && quizItem ? quizItem.question : "";
+  const category =
+    fetchStatus !== "loading" && quizItem ? quizItem.category : "";
 
   return (
     <Card className={styles.card}>
@@ -148,9 +130,36 @@ export const QuizForm = () => {
             key={questionsCount}
             seconds={AVAILABLE_TIME_SEC}
             onComplete={handleTimerEnd}
-            suspend={gameStatus !== "started"}
+            suspend={gameStatus !== "started" || fetchStatus === "loading"}
           />
         </div>
+        <Row>
+          <Col md="2" className={styles.label}>
+            Category
+          </Col>
+          <Col md="10">{category}</Col>
+        </Row>
+        <Row>
+          <Col md="2" className={styles.label}>
+            Question
+          </Col>
+          <Col md="10">{question}</Col>
+        </Row>
+        <Row>
+          <Col md="2" className={styles.label}>
+            Your answer
+          </Col>
+          <Col>
+            <Form.Control
+              type="text"
+              value={userAnswer}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              disabled={fetchStatus !== "success" || gameStatus !== "started"}
+              ref={answerInput}
+            />
+          </Col>
+        </Row>
         {content}
         {answerSection}
       </Card.Body>

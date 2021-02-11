@@ -1,16 +1,21 @@
 .card {
   width: 100%;
-  min-height: 40%;
+  height: 50%;
 }
 
 .header {
   font-weight: bold;
   font-size: 24px;
-  text-align: center;
+}
+
+.cardBody {
+  position: relative;
+  min-height: 50%;
+  overflow-y: auto;
 }
 
 .cardBody > * {
-  margin-bottom: 12px;
+  padding-bottom: 12px;
 }
 
 .gameInfo {
@@ -27,10 +32,16 @@
 }
 
 .spinnerBox {
-  min-height: 60px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  opacity: 0.6;
+  background-color: #f2f2f2;
 }
 
 .label {
@@ -44,6 +55,10 @@
 @media only screen and (max-width: 900px) {
   .gameInfo {
     flex-direction: column;
+    align-items: center;
+  }
+  .gameInfo span {
+    width: 50%;
   }
   .card {
     height: 60%;
@@ -53,8 +68,12 @@
   }
 }
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 760px) {
   .card {
-    height: 75%;
+    height: 80%;
+  }
+
+  .gameInfo span {
+    width: 100%;
   }
 }
