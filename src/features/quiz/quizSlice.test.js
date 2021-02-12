@@ -5,14 +5,38 @@ import reducer, {
   selectGameStatus,
   selectRound,
   selectQuestionsCount,
+  selectIsLoading,
+  selectQuizItem,
+  selectError,
   GAME_STATUS,
+  fetchQuestion,
 } from "./quizSlice";
+
+const rawQuizItem = {
+  id: 58971,
+  answer: "extradition",
+  question: "The handing over of a criminal to another country or state",
+  value: 600,
+  airdate: "2004-06-08T12:00:00.000Z",
+  created_at: "2014-02-11T23:22:58.890Z",
+  updated_at: "2014-02-11T23:22:58.890Z",
+  category_id: 7547,
+  game_id: null,
+  invalid_count: null,
+  category: {
+    id: 7547,
+    title: '"extra" helpings',
+    created_at: "2014-02-11T23:22:58.425Z",
+    updated_at: "2014-02-11T23:22:58.425Z",
+    clues_count: 5,
+  },
+};
 
 const quizItem = {
   id: 58971,
   answer: "extradition",
   question: "The handing over of a criminal to another country or state",
-  category: "extra helpings",
+  category: '"extra" helpings',
 };
 
 const activeQuizState = {
@@ -94,6 +118,37 @@ describe("Quiz slice", () => {
 
       const rootState = { quiz: nextState };
       expect(selectGameStatus(rootState)).toEqual(GAME_STATUS.LOSE);
+    });
+  });
+
+  describe("Async thunk", () => {
+    it("should properly set loading and quizItem state when a fetchQuestion is pending", () => {
+      const nextState = reducer(activeQuizState, fetchQuestion.pending());
+
+      const rootState = { quiz: nextState };
+      expect(selectIsLoading(rootState)).toEqual(true);
+      expect(selectError(rootState)).toEqual(null);
+    });
+
+    it("should properly set loading and error state when fetchQuestion fulfilled", () => {
+      const baseState = { ...activeQuizState, isLoading: true };
+      const payload = rawQuizItem;
+      const nextState = reducer(baseState, fetchQuestion.fulfilled(payload));
+
+      const rootState = { quiz: nextState };
+      expect(selectIsLoading(rootState)).toEqual(false);
+      expect(selectError(rootState)).toEqual(null);
+      expect(selectQuizItem(rootState)).toEqual(quizItem);
+    });
+
+    it("should properly set loading and error state when fetchQuestion is rejected", () => {
+      const baseState = { ...activeQuizState, isLoading: true };
+      const error = { message: "Failed to fetch" };
+      const nextState = reducer(baseState, fetchQuestion.rejected(error));
+
+      const rootState = { quiz: nextState };
+      expect(selectIsLoading(rootState)).toEqual(false);
+      expect(selectError(rootState)).toContain(error.message);
     });
   });
 });

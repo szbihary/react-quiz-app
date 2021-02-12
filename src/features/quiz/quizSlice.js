@@ -3,6 +3,8 @@ import { fetchRandomQuestion } from "../../api";
 import { MAX_ROUND } from "../../config";
 import { getScoreSum } from "./utils";
 
+const REFETCH_LIMIT = 10;
+
 export const GAME_STATUS = {
   STARTED: "started",
   WIN: "win",
@@ -14,12 +16,14 @@ const sanitizeString = (string) => string.replace(/<\/?[^>]+(>|$)/g, "");
 export const fetchQuestion = createAsyncThunk(
   "quiz/fetchQuestion",
   async (_arg, { getState }) => {
+    let refetchCount = REFETCH_LIMIT;
     let questions;
     const { askedQuestionIds } = getState().quiz;
     // fetch random questions until a new question is returned
     do {
+      refetchCount -= 1;
       questions = await fetchRandomQuestion();
-    } while (askedQuestionIds.includes(questions[0].id));
+    } while (askedQuestionIds.includes(questions[0].id) && refetchCount > 0);
     return questions[0]; // API returns an array with one question by default
   }
 );
