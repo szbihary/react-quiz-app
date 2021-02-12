@@ -3,6 +3,18 @@ import { fetchRandomQuestion } from "../../api";
 import { MAX_ROUND } from "../../config";
 import { getScoreSum } from "./utils";
 
+export const GAME_STATUS = {
+  STARTED: "started",
+  WIN: "win",
+  LOSE: "lose",
+};
+
+export const FETCH_STATUS = {
+  LOADING: "loading",
+  SUCCESS: "success",
+  ERROR: "error",
+};
+
 const sanitizeString = (string) => string.replace(/<\/?[^>]+(>|$)/g, "");
 
 export const fetchQuestion = createAsyncThunk(
@@ -18,11 +30,11 @@ export const fetchQuestion = createAsyncThunk(
   }
 );
 
-const initialState = {
+export const initialState = {
   round: 1,
   quizItem: null,
   askedQuestionIds: [],
-  gameStatus: "started", // 'started', 'win', 'lose'
+  gameStatus: GAME_STATUS.STARTED,
   fetchStatus: "loading",
   topScore: 0,
 };
@@ -36,29 +48,29 @@ export const quizSlice = createSlice({
       if (state.quizItem.answer.toLowerCase() === userAnswer.toLowerCase()) {
         state.topScore = Math.max(state.topScore, getScoreSum(state.round));
         if (state.round === MAX_ROUND) {
-          state.gameStatus = "win";
+          state.gameStatus = GAME_STATUS.WIN;
         } else {
           state.round += 1;
         }
       } else {
-        state.gameStatus = "lose";
+        state.gameStatus = GAME_STATUS.LOSE;
       }
     },
     restart(state) {
       state.round = 1;
-      state.gameStatus = "started";
+      state.gameStatus = GAME_STATUS.STARTED;
       state.askedQuestionIds = [];
     },
-    timerEnded(state) {
-      state.gameStatus = "lose";
+    timeout(state) {
+      state.gameStatus = GAME_STATUS.LOSE;
     },
   },
   extraReducers: {
     [fetchQuestion.pending]: (state) => {
-      state.fetchStatus = "loading";
+      state.fetchStatus = FETCH_STATUS.LOADING;
     },
     [fetchQuestion.fulfilled]: (state, action) => {
-      state.fetchStatus = "success";
+      state.fetchStatus = FETCH_STATUS.SUCCESS;
       const { id, question, answer, category } = action.payload;
       state.askedQuestionIds.push(id);
       state.quizItem = {
@@ -69,13 +81,13 @@ export const quizSlice = createSlice({
       };
     },
     [fetchQuestion.rejected]: (state, action) => {
-      state.fetchStatus = "error";
-      state.error = action.error.message;
+      state.fetchStatus = FETCH_STATUS.ERROR;
+      state.error = `An error occurred during fetching the question: ${action.error.message}`;
     },
   },
 });
 
-export const { evaluateAnswer, restart, timerEnded } = quizSlice.actions;
+export const { evaluateAnswer, restart, timeout } = quizSlice.actions;
 
 export default quizSlice.reducer;
 

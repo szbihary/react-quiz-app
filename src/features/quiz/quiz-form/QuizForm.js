@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import styles from "./quizForm.module.css";
 import {
   evaluateAnswer,
-  timerEnded,
+  timeout,
   restart,
   selectQuizItem,
   selectRound,
@@ -13,6 +13,8 @@ import {
   selectGameStatus,
   selectError,
   fetchQuestion,
+  GAME_STATUS,
+  FETCH_STATUS,
 } from "../quizSlice";
 import { AVAILABLE_TIME_SEC } from "../../../config";
 import { CountDown } from "../CountDown";
@@ -34,13 +36,16 @@ export const QuizForm = () => {
   const questionsCount = useSelector(selectQuestionsCount);
 
   useEffect(() => {
-    if (gameStatus === "started") {
+    if (gameStatus === GAME_STATUS.STARTED) {
       dispatch(fetchQuestion());
     }
   }, [dispatch, round, gameStatus]);
 
   useEffect(() => {
-    if (gameStatus === "started" && fetchStatus === "success") {
+    if (
+      gameStatus === GAME_STATUS.STARTED &&
+      fetchStatus === FETCH_STATUS.SUCCESS
+    ) {
       answerInput.current.focus();
     }
   }, [gameStatus, fetchStatus]);
@@ -55,7 +60,7 @@ export const QuizForm = () => {
   };
 
   const handleTimerEnd = () => {
-    dispatch(timerEnded());
+    dispatch(timeout());
   };
 
   const handleRestart = () => {
@@ -69,7 +74,7 @@ export const QuizForm = () => {
   };
 
   let content;
-  if (fetchStatus === "loading") {
+  if (fetchStatus === FETCH_STATUS.LOADING) {
     content = (
       <div className={styles.spinnerBox}>
         <Spinner animation="border" role="status" aria-hidden="true">
@@ -77,7 +82,7 @@ export const QuizForm = () => {
         </Spinner>
       </div>
     );
-  } else if (fetchStatus === "error") {
+  } else if (fetchStatus === FETCH_STATUS.ERROR) {
     content = <Alert variant="danger">{error}</Alert>;
   }
 
@@ -85,14 +90,17 @@ export const QuizForm = () => {
   let actions;
   let headerText = "Quiz";
 
-  if (gameStatus === "started") {
+  if (
+    gameStatus === GAME_STATUS.STARTED &&
+    fetchStatus !== FETCH_STATUS.ERROR
+  ) {
     actions = (
       <Button
         variant="primary"
         type="submit"
         aria-label="Answer the quiz"
         onClick={handleSubmit}
-        disabled={fetchStatus !== "success"}
+        disabled={fetchStatus !== FETCH_STATUS.SUCCESS}
       >
         Submit
       </Button>
@@ -105,9 +113,9 @@ export const QuizForm = () => {
     );
   }
 
-  if (gameStatus === "win") {
+  if (gameStatus === GAME_STATUS.WIN) {
     headerText += " - You won!";
-  } else if (gameStatus === "lose") {
+  } else if (gameStatus === GAME_STATUS.LOSE) {
     const { answer } = quizItem;
     const answerMessage = `The correct answer: ${answer}`;
     headerText += " - Game Over";
@@ -115,9 +123,9 @@ export const QuizForm = () => {
   }
 
   const question =
-    fetchStatus !== "loading" && quizItem ? quizItem.question : "";
+    fetchStatus !== FETCH_STATUS.LOADING && quizItem ? quizItem.question : "";
   const category =
-    fetchStatus !== "loading" && quizItem ? quizItem.category : "";
+    fetchStatus !== FETCH_STATUS.LOADING && quizItem ? quizItem.category : "";
 
   return (
     <Card className={styles.card}>
@@ -130,7 +138,10 @@ export const QuizForm = () => {
             key={questionsCount}
             seconds={AVAILABLE_TIME_SEC}
             onComplete={handleTimerEnd}
-            suspend={gameStatus !== "started" || fetchStatus === "loading"}
+            suspend={
+              gameStatus !== GAME_STATUS.STARTED ||
+              fetchStatus !== FETCH_STATUS.SUCCESS
+            }
           />
         </div>
         <Row>
@@ -155,7 +166,10 @@ export const QuizForm = () => {
               value={userAnswer}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
-              disabled={fetchStatus !== "success" || gameStatus !== "started"}
+              disabled={
+                fetchStatus !== FETCH_STATUS.SUCCESS ||
+                gameStatus !== GAME_STATUS.STARTED
+              }
               ref={answerInput}
             />
           </Col>
