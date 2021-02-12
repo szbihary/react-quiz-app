@@ -18,8 +18,7 @@ import {
 } from "../quizSlice";
 import { AVAILABLE_TIME_SEC } from "../../../config";
 import { CountDown } from "../CountDown";
-import { RoundInfo } from "../RoundInfo";
-import { Score } from "../Score";
+import { GameInfo } from "../GameInfo";
 import { Button, Card, Alert, Form, Row, Col, Spinner } from "react-bootstrap";
 
 export const QuizForm = () => {
@@ -132,8 +131,7 @@ export const QuizForm = () => {
       <Card.Header className={styles.header}>{headerText}</Card.Header>
       <Card.Body className={styles.cardBody}>
         <div className={styles.gameInfo}>
-          <RoundInfo round={round} />
-          <Score round={round} topScore={topScore} />
+          <GameInfo round={round} topScore={topScore} />
           <CountDown
             key={questionsCount}
             seconds={AVAILABLE_TIME_SEC}
