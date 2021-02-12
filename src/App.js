@@ -1,12 +1,12 @@
 import React from "react";
-import { QuizForm } from "./features/quiz/quiz-form/QuizForm";
+import { QuizGame } from "./features/quiz/quiz-game/QuizGame";
 import styles from "./App.module.css";
 import { Container } from "react-bootstrap";
 
 function App() {
   return (
     <Container className={styles.app}>
-      <QuizForm />
+      <QuizGame />
     </Container>
   );
 }

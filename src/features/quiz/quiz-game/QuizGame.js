@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import styles from "./quizForm.module.css";
+import styles from "./quizGame.module.css";
 import {
   evaluateAnswer,
   timeout,
@@ -9,26 +9,25 @@ import {
   selectRound,
   selectTopScore,
   selectQuestionsCount,
-  selectFetchStatus,
+  selectIsLoading,
   selectGameStatus,
   selectError,
   fetchQuestion,
   GAME_STATUS,
-  FETCH_STATUS,
 } from "../quizSlice";
 import { AVAILABLE_TIME_SEC } from "../../../config";
 import { CountDown } from "../CountDown";
 import { GameInfo } from "../GameInfo";
 import { Button, Card, Alert, Form, Row, Col, Spinner } from "react-bootstrap";
 
-export const QuizForm = () => {
+export const QuizGame = () => {
   const [userAnswer, setUserAnswer] = useState("");
   const dispatch = useDispatch();
   const answerInput = useRef(null);
 
   const quizItem = useSelector(selectQuizItem);
   const round = useSelector(selectRound);
-  const fetchStatus = useSelector(selectFetchStatus);
+  const isLoading = useSelector(selectIsLoading);
   const gameStatus = useSelector(selectGameStatus);
   const error = useSelector(selectError);
   const topScore = useSelector(selectTopScore);
@@ -41,13 +40,10 @@ export const QuizForm = () => {
   }, [dispatch, round, gameStatus]);
 
   useEffect(() => {
-    if (
-      gameStatus === GAME_STATUS.STARTED &&
-      fetchStatus === FETCH_STATUS.SUCCESS
-    ) {
+    if (gameStatus === GAME_STATUS.STARTED && isLoading === false) {
       answerInput.current.focus();
     }
-  }, [gameStatus, fetchStatus]);
+  }, [gameStatus, isLoading]);
 
   const handleInputChange = (event) => {
     setUserAnswer(event.target.value);
@@ -73,7 +69,7 @@ export const QuizForm = () => {
   };
 
   let content;
-  if (fetchStatus === FETCH_STATUS.LOADING) {
+  if (isLoading) {
     content = (
       <div className={styles.spinnerBox}>
         <Spinner animation="border" role="status" aria-hidden="true">
@@ -81,7 +77,8 @@ export const QuizForm = () => {
         </Spinner>
       </div>
     );
-  } else if (fetchStatus === FETCH_STATUS.ERROR) {
+  }
+  if (error) {
     content = <Alert variant="danger">{error}</Alert>;
   }
 
@@ -89,17 +86,14 @@ export const QuizForm = () => {
   let actions;
   let headerText = "Quiz";
 
-  if (
-    gameStatus === GAME_STATUS.STARTED &&
-    fetchStatus !== FETCH_STATUS.ERROR
-  ) {
+  if (gameStatus === GAME_STATUS.STARTED && !error) {
     actions = (
       <Button
         variant="primary"
         type="submit"
         aria-label="Answer the quiz"
         onClick={handleSubmit}
-        disabled={fetchStatus !== FETCH_STATUS.SUCCESS}
+        disabled={isLoading}
       >
         Submit
       </Button>
@@ -121,10 +115,8 @@ export const QuizForm = () => {
     answerSection = <Alert variant="danger">{answerMessage}</Alert>;
   }
 
-  const question =
-    fetchStatus !== FETCH_STATUS.LOADING && quizItem ? quizItem.question : "";
-  const category =
-    fetchStatus !== FETCH_STATUS.LOADING && quizItem ? quizItem.category : "";
+  const question = !isLoading && quizItem ? quizItem.question : "";
+  const category = !isLoading && quizItem ? quizItem.category : "";
 
   return (
     <Card className={styles.card}>
@@ -136,10 +128,7 @@ export const QuizForm = () => {
             key={questionsCount}
             seconds={AVAILABLE_TIME_SEC}
             onComplete={handleTimerEnd}
-            suspend={
-              gameStatus !== GAME_STATUS.STARTED ||
-              fetchStatus !== FETCH_STATUS.SUCCESS
-            }
+            suspend={gameStatus !== GAME_STATUS.STARTED || isLoading}
           />
         </div>
         <Row>
@@ -165,8 +154,7 @@ export const QuizForm = () => {
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
               disabled={
-                fetchStatus !== FETCH_STATUS.SUCCESS ||
-                gameStatus !== GAME_STATUS.STARTED
+                isLoading || error || gameStatus !== GAME_STATUS.STARTED
               }
               ref={answerInput}
             />

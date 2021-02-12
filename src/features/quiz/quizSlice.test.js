@@ -20,7 +20,8 @@ const activeQuizState = {
   quizItem,
   askedQuestionIds: [],
   gameStatus: "started",
-  fetchStatus: "success",
+  isLoading: false,
+  error: null,
   topScore: 0,
 };
 
@@ -29,7 +30,8 @@ const lostQuizState = {
   quizItem,
   askedQuestionIds: [58971, 58972],
   gameStatus: "lose",
-  fetchStatus: "success",
+  isLoading: false,
+  error: null,
   topScore: 4,
 };
 

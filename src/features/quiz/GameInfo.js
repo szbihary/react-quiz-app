@@ -15,8 +15,8 @@ export const GameInfo = React.memo(({ round, topScore }) => {
   ];
   return (
     <>
-      {gameInfoItems.map((gameInfoItem) => (
-        <Badge pill variant="info">
+      {gameInfoItems.map((gameInfoItem, index) => (
+        <Badge key={index} pill variant="info">
           {gameInfoItem}
         </Badge>
       ))}

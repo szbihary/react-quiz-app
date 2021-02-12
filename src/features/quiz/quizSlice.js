@@ -9,12 +9,6 @@ export const GAME_STATUS = {
   LOSE: "lose",
 };
 
-export const FETCH_STATUS = {
-  LOADING: "loading",
-  SUCCESS: "success",
-  ERROR: "error",
-};
-
 const sanitizeString = (string) => string.replace(/<\/?[^>]+(>|$)/g, "");
 
 export const fetchQuestion = createAsyncThunk(
@@ -35,8 +29,9 @@ export const initialState = {
   quizItem: null,
   askedQuestionIds: [],
   gameStatus: GAME_STATUS.STARTED,
-  fetchStatus: "loading",
   topScore: 0,
+  isLoading: false,
+  error: null,
 };
 
 export const quizSlice = createSlice({
@@ -60,6 +55,7 @@ export const quizSlice = createSlice({
       state.round = 1;
       state.gameStatus = GAME_STATUS.STARTED;
       state.askedQuestionIds = [];
+      state.error = null;
     },
     timeout(state) {
       state.gameStatus = GAME_STATUS.LOSE;
@@ -67,10 +63,10 @@ export const quizSlice = createSlice({
   },
   extraReducers: {
     [fetchQuestion.pending]: (state) => {
-      state.fetchStatus = FETCH_STATUS.LOADING;
+      state.isLoading = true;
     },
     [fetchQuestion.fulfilled]: (state, action) => {
-      state.fetchStatus = FETCH_STATUS.SUCCESS;
+      state.isLoading = false;
       const { id, question, answer, category } = action.payload;
       state.askedQuestionIds.push(id);
       state.quizItem = {
@@ -81,7 +77,7 @@ export const quizSlice = createSlice({
       };
     },
     [fetchQuestion.rejected]: (state, action) => {
-      state.fetchStatus = FETCH_STATUS.ERROR;
+      state.isLoading = false;
       state.error = `An error occurred during fetching the question: ${action.error.message}`;
     },
   },
@@ -96,7 +92,7 @@ export const selectQuizItem = (state) => state.quiz.quizItem;
 export const selectRound = (state) => state.quiz.round;
 export const selectError = (state) => state.quiz.error;
 export const selectTopScore = (state) => state.quiz.topScore;
-export const selectFetchStatus = (state) => state.quiz.fetchStatus;
+export const selectIsLoading = (state) => state.quiz.isLoading;
 export const selectGameStatus = (state) => state.quiz.gameStatus;
 export const selectQuestionsCount = (state) =>
   state.quiz.askedQuestionIds.length;
