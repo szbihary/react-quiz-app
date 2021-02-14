@@ -30,7 +30,7 @@ export const CountDown = ({ seconds, onComplete, suspend }) => {
   const colorLevel = getColorLevel(timeLeft);
 
   return (
-    <Badge pill variant={colorLevel}>
+    <Badge pill variant={colorLevel} role="timer">
       {timeLeftString}
     </Badge>
   );

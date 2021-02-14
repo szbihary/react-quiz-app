@@ -72,7 +72,7 @@ export const QuizGame = () => {
   if (isLoading) {
     content = (
       <div className={styles.spinnerBox}>
-        <Spinner animation="border" role="status" aria-hidden="true">
+        <Spinner animation="border" data-testid="loader" aria-hidden="true">
           <span className="sr-only"></span>
         </Spinner>
       </div>
@@ -93,7 +93,6 @@ export const QuizGame = () => {
         type="submit"
         aria-label="Answer the quiz"
         onClick={handleSubmit}
-        disabled={isLoading}
       >
         Submit
       </Button>
@@ -115,8 +114,8 @@ export const QuizGame = () => {
     answerSection = <Alert variant="danger">{answerMessage}</Alert>;
   }
 
-  const question = !isLoading && quizItem ? quizItem.question : "";
-  const category = !isLoading && quizItem ? quizItem.category : "";
+  const question = !isLoading && quizItem?.question;
+  const category = !isLoading && quizItem?.category;
 
   return (
     <Card className={styles.card}>
@@ -132,24 +131,29 @@ export const QuizGame = () => {
           />
         </div>
         <Row>
-          <Col md="2" className={styles.label}>
+          <Col md="2" id="categoryLabel" className={styles.label}>
             Category
           </Col>
-          <Col md="10">{category}</Col>
+          <Col md="10" aria-labelledby="categoryLabel">
+            {category}
+          </Col>
         </Row>
         <Row>
-          <Col md="2" className={styles.label}>
+          <Col md="2" id="questionLabel" className={styles.label}>
             Question
           </Col>
-          <Col md="10">{question}</Col>
+          <Col md="10" aria-labelledby="questionLabel" data-testid="question">
+            {question}
+          </Col>
         </Row>
         <Row>
-          <Col md="2" className={styles.label}>
+          <Col md="2" id="answerLabel" className={styles.label}>
             Your answer
           </Col>
           <Col>
             <Form.Control
               type="text"
+              aria-labelledby="answerLabel"
               value={userAnswer}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
@@ -157,6 +161,7 @@ export const QuizGame = () => {
                 isLoading || error || gameStatus !== GAME_STATUS.STARTED
               }
               ref={answerInput}
+              placeholder="Type your answer"
             />
           </Col>
         </Row>

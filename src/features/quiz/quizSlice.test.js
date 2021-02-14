@@ -11,26 +11,7 @@ import reducer, {
   GAME_STATUS,
   fetchQuestion,
 } from "./quizSlice";
-
-const rawQuizItem = {
-  id: 58971,
-  answer: "extradition",
-  question: "The handing over of a criminal to another country or state",
-  value: 600,
-  airdate: "2004-06-08T12:00:00.000Z",
-  created_at: "2014-02-11T23:22:58.890Z",
-  updated_at: "2014-02-11T23:22:58.890Z",
-  category_id: 7547,
-  game_id: null,
-  invalid_count: null,
-  category: {
-    id: 7547,
-    title: '"extra" helpings',
-    created_at: "2014-02-11T23:22:58.425Z",
-    updated_at: "2014-02-11T23:22:58.425Z",
-    clues_count: 5,
-  },
-};
+import randomQuiz from "../../../test/mock/randomQuiz";
 
 const quizItem = {
   id: 58971,
@@ -132,7 +113,7 @@ describe("Quiz slice", () => {
 
     it("should properly set loading and error state when fetchQuestion fulfilled", () => {
       const baseState = { ...activeQuizState, isLoading: true };
-      const payload = rawQuizItem;
+      const payload = randomQuiz;
       const nextState = reducer(baseState, fetchQuestion.fulfilled(payload));
 
       const rootState = { quiz: nextState };

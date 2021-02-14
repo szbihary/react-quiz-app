@@ -10,7 +10,7 @@ async function fetchData(url) {
     }
     throw new Error(response.statusText);
   } catch (err) {
-    return Promise.reject(err.message ? err.message : data);
+    return Promise.reject(new Error(err?.message || data));
   }
 }
 
