@@ -34,7 +34,7 @@ const renderQuiz = () => {
   );
 };
 
-describe("QuizGame", () => {
+describe("QuizGame component", () => {
   beforeAll(() => server.listen());
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
